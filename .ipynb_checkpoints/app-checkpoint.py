@@ -56,7 +56,15 @@ if st.button("Predict"):
     scaled_input = scaler.transform(input_df)
 
     # Make prediction
-    prediction = model.predict(scaled_input)[0]
+    model_choice = st.radio("Choose model:", ["Machine Learning (KNN)", "Deep Learning (Neural Network)"])
+
+    if model_choice == "Machine Learning (KNN)":
+        result = ml_model.predict(input_scaled)
+        st.write("🧠 ML Model Prediction:")
+    else:
+        result = dl_model.predict(input_scaled)
+        result = [1 if result[0][0] > 0.5 else 0]
+        st.write("🔬 DL Model Prediction:")
 
     # Show result
     if prediction == 1:

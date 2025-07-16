@@ -1,14 +1,17 @@
 import streamlit as st
 import pandas as pd
+import tensorflow as tf
 import joblib
 
 # Load saved model, scaler, and expected columns
 model = joblib.load("knn_heart_model.pkl")
+dl_model = tf.keras.models.load_model("dl_heart_model.h5")
 scaler = joblib.load("heart_scaler.pkl")
 expected_columns = joblib.load("heart_columns.pkl")
 
 st.title("Heart Stroke Prediction by Shobha")
 st.markdown("Provide the following details to check your heart stroke risk:")
+model_choice = st.selectbox("Select Model Type", ["Machine Learning (KNN)", "Deep Learning (Neural Network)"])
 
 # Collect user input
 age = st.slider("Age", 18, 100, 40)
@@ -56,10 +59,18 @@ if st.button("Predict"):
     scaled_input = scaler.transform(input_df)
 
     # Make prediction
-    prediction = model.predict(scaled_input)[0]
+    model_choice = st.radio("Choose model:", ["Machine Learning (KNN)", "Deep Learning (Neural Network)"])
+
+    if model_choice == "Machine Learning (KNN)":
+        result = model.predict(scaled_input)
+        st.write("🧠 ML Model Prediction:")
+    else:
+        result = dl_model.predict(scaled_input)
+        result = [1 if result[0][0] > 0.5 else 0]
+        st.write("🔬 DL Model Prediction:")
 
     # Show result
-    if prediction == 1:
+    if result[0] == 1:
         st.error("⚠️ High Risk of Heart Disease")
     else:
         st.success("✅ Low Risk of Heart Disease")
